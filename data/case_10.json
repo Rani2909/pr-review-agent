@@ -1,0 +1,7 @@
+{
+  "id": "case_10",
+  "title": "Retry loop runs one time fewer than documented",
+  "diff": "def fetch_with_retries(fetch_fn, max_retries=3):\n    \"\"\"Try calling fetch_fn, retrying up to max_retries times on failure.\n    Returns the result on first success, or raises the last exception if all attempts fail.\n    \"\"\"\n    last_exception = None\n    for attempt in range(max_retries):\n        try:\n            return fetch_fn()\n        except Exception as e:\n            last_exception = e\n    raise last_exception\n",
+  "ground_truth_bug": "The docstring promises 'retrying up to max_retries times', implying the initial call plus max_retries retries (max_retries + 1 total attempts), but range(max_retries) only performs max_retries total attempts (the initial call counts as one of the retries), so it actually retries max_retries - 1 times, one fewer than documented.",
+  "known_fix": "range(max_retries + 1), or clarify the docstring to say 'attempt up to max_retries total calls'"
+}

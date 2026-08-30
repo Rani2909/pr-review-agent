@@ -1,0 +1,7 @@
+{
+  "id": "case_07",
+  "title": "Clean function, no bug (false-positive check)",
+  "diff": "def clamp(value, low, high):\n    \"\"\"Clamp value to the inclusive range [low, high].\"\"\"\n    if value < low:\n        return low\n    if value > high:\n        return high\n    return value\n",
+  "ground_truth_bug": null,
+  "known_fix": null
+}

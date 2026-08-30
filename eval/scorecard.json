@@ -1,0 +1,122 @@
+{
+  "baseline": {
+    "summary": {
+      "correct": 7,
+      "missed": 3,
+      "false_positive": 0,
+      "total": 10
+    },
+    "cases": [
+      {
+        "id": "case_01",
+        "title": "Pagination off-by-one",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_02",
+        "title": "Mutable default argument",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_03",
+        "title": "Wrong variable in discount check",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_04",
+        "title": "Missing None check on user lookup",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_05",
+        "title": "Integer division truncates average",
+        "verdict": "MISSED"
+      },
+      {
+        "id": "case_06",
+        "title": "SQL injection via string formatting",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_07",
+        "title": "Clean function, no bug (false-positive check)",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_08",
+        "title": "Race condition on shared counter (no locking)",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_09",
+        "title": "Overly broad except hides real errors",
+        "verdict": "MISSED"
+      },
+      {
+        "id": "case_10",
+        "title": "Retry loop runs one time fewer than documented",
+        "verdict": "MISSED"
+      }
+    ]
+  },
+  "agent": {
+    "summary": {
+      "correct": 8,
+      "missed": 2,
+      "false_positive": 0,
+      "total": 10
+    },
+    "cases": [
+      {
+        "id": "case_01",
+        "title": "Pagination off-by-one",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_02",
+        "title": "Mutable default argument",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_03",
+        "title": "Wrong variable in discount check",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_04",
+        "title": "Missing None check on user lookup",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_05",
+        "title": "Integer division truncates average",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_06",
+        "title": "SQL injection via string formatting",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_07",
+        "title": "Clean function, no bug (false-positive check)",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_08",
+        "title": "Race condition on shared counter (no locking)",
+        "verdict": "CORRECT"
+      },
+      {
+        "id": "case_09",
+        "title": "Overly broad except hides real errors",
+        "verdict": "MISSED"
+      },
+      {
+        "id": "case_10",
+        "title": "Retry loop runs one time fewer than documented",
+        "verdict": "MISSED"
+      }
+    ]
+  }
+}

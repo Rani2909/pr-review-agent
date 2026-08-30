@@ -1,0 +1,7 @@
+{
+  "id": "case_08",
+  "title": "Race condition on shared counter (no locking)",
+  "diff": "class RateLimiter:\n    \"\"\"Allow at most `max_calls` calls per window; thread-safe usage expected.\"\"\"\n    def __init__(self, max_calls):\n        self.max_calls = max_calls\n        self.count = 0\n\n    def allow(self):\n        \"\"\"Return True if this call is allowed, False if the limit is exceeded.\"\"\"\n        if self.count >= self.max_calls:\n            return False\n        self.count += 1\n        return True\n",
+  "ground_truth_bug": "The docstring says 'thread-safe usage expected', but the check-then-increment on self.count is not atomic. Two threads can both read count < max_calls before either increments, allowing more than max_calls through (a classic TOCTOU/race condition). There is no lock around the check-and-increment.",
+  "known_fix": "Wrap the check-and-increment in a threading.Lock (or use a thread-safe counter/atomic primitive)."
+}

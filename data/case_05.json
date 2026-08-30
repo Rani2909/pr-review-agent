@@ -1,0 +1,7 @@
+{
+  "id": "case_05",
+  "title": "Integer division truncates average",
+  "diff": "def average_score(scores):\n    \"\"\"Return the average of a list of integer scores.\"\"\"\n    total = sum(scores)\n    count = len(scores)\n    return total // count\n",
+  "ground_truth_bug": "Using floor division (//) truncates the result to an integer, so e.g. scores [1, 2] returns 1 instead of 1.5, silently losing precision.",
+  "known_fix": "return total / count"
+}

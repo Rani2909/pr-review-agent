@@ -1,0 +1,7 @@
+{
+  "id": "case_09",
+  "title": "Overly broad except hides real errors",
+  "diff": "def parse_config(raw_json):\n    \"\"\"Parse a JSON config string. Return the parsed dict, or an empty dict if parsing fails.\"\"\"\n    try:\n        return json.loads(raw_json)\n    except:\n        return {}\n",
+  "ground_truth_bug": "The bare 'except:' catches ALL exceptions, not just JSON parsing errors (json.JSONDecodeError) -- including things like KeyboardInterrupt, MemoryError, or a bug elsewhere that raises an unrelated exception inside this call. This silently swallows real errors and returns an empty config instead of surfacing the actual problem, making bugs very hard to diagnose later.",
+  "known_fix": "except json.JSONDecodeError: return {}"
+}

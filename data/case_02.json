@@ -1,0 +1,7 @@
+{
+  "id": "case_02",
+  "title": "Mutable default argument",
+  "diff": "def add_tag(tag, tags=[]):\n    \"\"\"Append a tag to a list and return it.\"\"\"\n    tags.append(tag)\n    return tags\n",
+  "ground_truth_bug": "tags=[] is a mutable default argument. The same list is reused and grows across calls that don't pass their own list, causing tags to leak between unrelated calls.",
+  "known_fix": "def add_tag(tag, tags=None):\\n    if tags is None:\\n        tags = []\\n    tags.append(tag)\\n    return tags"
+}

@@ -1,0 +1,7 @@
+{
+  "id": "case_03",
+  "title": "Wrong variable in discount check",
+  "diff": "def apply_discount(price, is_member, is_vip):\n    if is_member:\n        price = price * 0.9\n    if is_member:\n        price = price * 0.8\n    return price\n",
+  "ground_truth_bug": "The second condition should check is_vip, not is_member (copy-paste error). As written, VIP status never applies a discount, and members who are not VIP get double-discounted.",
+  "known_fix": "Change the second 'if is_member:' to 'if is_vip:'"
+}

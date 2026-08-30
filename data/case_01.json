@@ -1,0 +1,7 @@
+{
+  "id": "case_01",
+  "title": "Pagination off-by-one",
+  "diff": "def get_page(items, page_size, page_num):\n    \"\"\"Return the slice of items for the given page (1-indexed).\"\"\"\n    start = page_num * page_size\n    end = start + page_size\n    return items[start:end]\n",
+  "ground_truth_bug": "page_num is 1-indexed per the docstring, but start uses page_num * page_size instead of (page_num - 1) * page_size, so page 1 skips the first page_size items entirely.",
+  "known_fix": "start = (page_num - 1) * page_size"
+}

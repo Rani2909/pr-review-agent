@@ -1,0 +1,7 @@
+{
+  "id": "case_04",
+  "title": "Missing None check on user lookup",
+  "diff": "def get_user_email(user_id, users_db):\n    user = users_db.get(user_id)\n    return user[\"email\"].lower()\n",
+  "ground_truth_bug": "users_db.get(user_id) returns None if the id isn't found, and user[\"email\"] on None raises a TypeError instead of handling the missing-user case gracefully.",
+  "known_fix": "Check 'if user is None: return None' (or raise a clear error) before accessing user[\"email\"]"
+}

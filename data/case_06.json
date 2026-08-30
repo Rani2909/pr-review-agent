@@ -1,0 +1,7 @@
+{
+  "id": "case_06",
+  "title": "SQL injection via string formatting",
+  "diff": "def find_user_by_name(cursor, name):\n    query = \"SELECT * FROM users WHERE name = '%s'\" % name\n    cursor.execute(query)\n    return cursor.fetchall()\n",
+  "ground_truth_bug": "The name value is interpolated directly into the SQL string instead of using a parameterized query, creating a SQL injection vulnerability.",
+  "known_fix": "cursor.execute(\"SELECT * FROM users WHERE name = %s\", (name,))"
+}
