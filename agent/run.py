@@ -1,18 +1,59 @@
 """
-Agent PR reviewer: two upgrades over the baseline.
-  1. Structured analysis prompt (asks the model to reason about intent vs. behavior
+Agent PR reviewer: three upgrades over the baseline.
+  1. A real tool call: static analysis via Python's ast module runs BEFORE the
+     model sees the code, checking for syntax validity and flagging risky
+     patterns (bare except, mutable default arguments) so the model gets that
+     as verified, deterministic context instead of having to spot it unaided.
+  2. Structured analysis prompt (asks the model to reason about intent vs. behavior
      line-by-line before concluding, instead of a one-shot guess).
-  2. A self-verification pass: every candidate bug is re-checked against the code
+  3. A self-verification pass: every candidate bug is re-checked against the code
      in a second call before being reported, to cut down false positives.
 """
 import sys
 import os
 import re
+import ast
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from common import load_cases, get_client, save_results, call_model
 
+
+def run_static_analysis(code):
+    """A real tool: parse the code with Python's ast module and flag known
+    risky patterns deterministically, without relying on the model to notice
+    them unaided. Returns a list of finding strings."""
+    findings = []
+    try:
+        tree = ast.parse(code)
+    except SyntaxError as e:
+        return [f"SYNTAX ERROR: code does not parse: {e}"]
+
+    for node in ast.walk(tree):
+        # Bare except: or except Exception: catches too broadly
+        if isinstance(node, ast.ExceptHandler):
+            if node.type is None:
+                findings.append("Static analysis: bare 'except:' clause found (catches ALL exceptions).")
+            elif isinstance(node.type, ast.Name) and node.type.id == "Exception":
+                findings.append("Static analysis: 'except Exception:' found (very broad exception handling).")
+
+        # Mutable default arguments (list/dict/set literal as a default)
+        if isinstance(node, ast.FunctionDef):
+            for default in node.args.defaults:
+                if isinstance(default, (ast.List, ast.Dict, ast.Set)):
+                    findings.append(
+                        f"Static analysis: function '{node.name}' has a mutable default "
+                        f"argument (list/dict/set), which is a classic Python pitfall."
+                    )
+
+    if not findings:
+        findings.append("Static analysis: no risky patterns detected (code parses cleanly, no bare except, no mutable defaults).")
+    return findings
+
+
 ANALYZE_PROMPT = """You are an experienced code reviewer. Analyze the following code change carefully.
+
+A static analysis tool has already checked this code and found:
+{static_findings}
 
 Steps:
 1. Explain what the function is INTENDED to do (from its name, docstring, and parameters).
@@ -20,6 +61,8 @@ Steps:
 3. List EVERY place where the actual behavior might diverge from the intended behavior,
    including edge cases, security issues, and silent correctness bugs. Explicitly consider:
    what happens on a lookup that finds nothing, an empty input, or a boundary value.
+   Take the static analysis findings above into account -- confirm, expand on, or set aside
+   each one as appropriate, and add anything static analysis alone can't catch.
 
 Code:
 {diff}
@@ -56,8 +99,9 @@ Answer with just "YES: <one-sentence reason>" or "NO: <one-sentence reason>".
 """
 
 
-def analyze(client, diff):
-    return call_model(client, ANALYZE_PROMPT.format(diff=diff))
+def analyze(client, diff, static_findings):
+    formatted_findings = "\n".join(f"- {f}" for f in static_findings)
+    return call_model(client, ANALYZE_PROMPT.format(diff=diff, static_findings=formatted_findings))
 
 
 def extract_candidates(analysis_text):
@@ -79,7 +123,8 @@ def verify(client, diff, candidate):
 
 
 def review_diff(client, diff):
-    analysis = analyze(client, diff)
+    static_findings = run_static_analysis(diff)
+    analysis = analyze(client, diff, static_findings)
     candidates = extract_candidates(analysis)
 
     confirmed_issues = []
@@ -91,6 +136,7 @@ def review_diff(client, diff):
             confirmed_issues.append(candidate)
 
     return {
+        "static_analysis_findings": static_findings,
         "raw_analysis": analysis,
         "candidates_found": len(candidates),
         "verification_log": verification_log,
